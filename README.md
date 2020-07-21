@@ -3,6 +3,13 @@ Discord bot that lets users manage an investment portfolio and compete with frie
 
 ## Usage
 #### trader setup
+ - creates a portfolio for the user with an initial balance of 15,000 USD
+ - portfolios are one-per-user and persist across discord servers/channels
 #### trader info
-#### trader check \<ticker\>
-#### trader setup
+ this command lists: 
+ - current balance
+ - lists owned shares
+ - lists overall value
+#### trader check \<stock name\>
+#### trader buy \<stock name\> \<amount\>
+#### trader sell \<stock name\> \<amount\>

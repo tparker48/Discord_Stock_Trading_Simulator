@@ -2,6 +2,7 @@
 Discord bot that lets users manage an investment portfolio and compete with friends
 
 ## Usage
+All stock names must be in the ticker format (IE: Apple = AAPL)
 #### trader setup
  - creates a portfolio for the user with an initial balance of 15,000 USD
  - portfolios are one-per-user and persist across discord servers/channels

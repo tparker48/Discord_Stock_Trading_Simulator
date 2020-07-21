@@ -4,5 +4,5 @@ Discord bot that lets users manage an investment portfolio and compete with frie
 ## Usage
 #### trader setup
 #### trader info
-#### trader check <ticker>
+#### trader check \<ticker\>
 #### trader setup

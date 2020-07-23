@@ -243,10 +243,49 @@ class StockTraderLogic():
                 return "You sold all your " + ticker + " shares!\n"
 
 
+    def helpMessage(self):
+        response = ""
+        tab = "    "
+
+        response += bold("trader setup : ")
+        response += tab + "Set up your portfolio"
+        response += "\n"
+        response += "\n"
+
+        response += bold("trader info : ")
+        response += tab + "Print a summary of your portfolio"
+        response += "\n"
+        response += "\n"
+
+        response += bold("trader check   STOCK : ")
+        response += tab + "Check the price of a stock"
+        response += "\n"
+        response += "\n"
+
+        response += bold("trader buy   STOCK   AMOUNT : ")
+        response += tab + "Buy shares"
+        response += "\n"
+        response += tab + " - Use \"all\" for AMOUNT to buy as many as possible"
+        response += "\n"
+        response += "\n"
+
+        response += bold("trader sell   STOCK   AMOUNT : ")
+        response += tab + "Sell shares"
+        response += "\n"
+        response += tab + " - Use \"all\" for AMOUNT to sell as many as possible"
+        response += "\n"
+
+
+        return response
+
+
     def getResponse(self, message):
         txt = str(message.content)
         lowtxt = txt.lower()
         response = ""
+
+        if lowtxt == "trader help":
+            return self.helpMessage()
 
         if not self.hasPortfolio(message) and txt != "trader setup":
             response = "Hello " + self.getInformalName(message) + ", I see you do not have trading portfolio set up!\nPlease type \'trader setup\' to start one"

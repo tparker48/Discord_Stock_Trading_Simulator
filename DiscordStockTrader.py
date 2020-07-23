@@ -27,7 +27,12 @@ class MyClient(discord.Client):
                 return True
 
         return False
-    
 
-bot = MyClient()
-bot.run('TOKEN HERE')
+try:
+    f = open("token.txt", "r")
+    token = f.readline()
+    f.close()
+    bot = MyClient()
+    bot.run(token)
+except:
+    print("Couldn't get the token from \'token.txt\'!")

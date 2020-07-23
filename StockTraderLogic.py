@@ -116,15 +116,27 @@ class StockTraderLogic():
         return response
         
 
-    def buyStocks(self, message):
-        request = str(message.content)[10:].strip().split()
-        print(request)
 
-        try:
-            ticker = request[0]
-            amount = request[1]
-        except:
-            return "Uh oh!\nPlease type \"trader buy STOCK AMOUNT\""
+    def buyStocks(self, message):
+        response = ""
+        request = str(message.content)[10:].strip().split()
+        if len(request)%2 != 0:
+            return "Uh oh!\nPlease type \"trader buy STOCK> AMOUNT\"\nFor multiple purchases, try \"trader buy STOCK1 AMOUNT1 STOCK2 AMOUNT2 ...\""
+        else:
+            for i in range(int(len(request)/2)):
+                index = i*2
+                ticker = request[index]
+                amount = request[index+1]
+                print("Processing Buy Request for " + amount + " shares of " + ticker)
+                buyResponse = self.buyStock(ticker, amount, message)
+                
+                response += buyResponse
+                if "You now own" not in buyResponse:
+                    return response
+            response += "Your current balance is now " + str(round(self.portfolio[BALANCE],2)) + "\n"
+            return response
+
+    def buyStock(self, ticker, amount, message):
 
         price = self.getStockPrice(ticker)
         if not price[0]:
@@ -134,6 +146,8 @@ class StockTraderLogic():
 
         if amount == "all":
             amount = self.portfolio[BALANCE] / price
+        else:
+             amount = float(amount)
 
         if amount <= 0.0:
             return "Please enter an amount larger than zero"
@@ -151,19 +165,30 @@ class StockTraderLogic():
             if not self.savePortfolio(message):
                 return "Error saving the changes to your portfolio. Nothing was done."
 
-            return "You now own " + str(self.portfolio[STOCKS][ticker]) + " shares of " + ticker + "!\nYour current balance is now " + str(round(self.portfolio[BALANCE],2)) + "\n"
-
-
+            return "You now own " + str(self.portfolio[STOCKS][ticker]) + " shares of " + ticker + "!\n"
+            
+#return "Uh oh!\nPlease type \"trader sell STOCK AMOUNT\""
     def sellStocks(self, message):
+        response = ""
+        
         request = str(message.content)[11:].strip().split()
-        print(request)
+        if len(request)%2 != 0:
+            return "Uh oh!\nPlease type \"trader sell STOCK> AMOUNT\"\nFor multiple, try \"trader sell STOCK1 AMOUNT1 STOCK2 AMOUNT2 ...\""
+        else:
+            for i in range(int(len(request)/2)):
+                index = i*2
+                ticker = request[index]
+                amount = request[index+1]
+                print("Processing Sell Request for " + amount + " shares of " + ticker)
+                sellResponse = self.sellStock(ticker, amount, message)
+                
+                response += sellResponse
+                if "You now own" not in sellResponse and "You sold" not in sellResponse:
+                    return response
+            response += "Your current balance is now " + str(round(self.portfolio[BALANCE],2)) + "\n"
+            return response
 
-        try:
-            ticker = request[0]
-            amount = request[1]
-        except:
-            return "Uh oh!\nPlease type \"trader sell STOCK AMOUNT\""
-
+    def sellStock(self, ticker, amount ,message):
         price = self.getStockPrice(ticker)
         if not price[0]:
             return price[1]
@@ -197,12 +222,12 @@ class StockTraderLogic():
                 del(self.portfolio[STOCKS][ticker])
 
             if not self.savePortfolio(message):
-                return "Error saving the changes to your portfolio. Nothing was done."
+                return "Error saving the changes to your portfolio. No shares of " + ticker + " were purchased."
 
             if ticker in self.portfolio[STOCKS]:
-                return "You now own " + str(self.portfolio[STOCKS][ticker]) + " shares of " + ticker + "!\nYou're current balance is now " + str(round(self.portfolio[BALANCE],2)) + "\n"
+                return "You now own " + str(self.portfolio[STOCKS][ticker]) + " shares of " + ticker + "!\n"
             else:
-                return "You sold all your " + ticker + " shares!\nYour current balance is now " + str(round(self.portfolio[BALANCE],2)) + "\n"
+                return "You sold all your " + ticker + " shares!\n"
 
 
     def getResponse(self, message):

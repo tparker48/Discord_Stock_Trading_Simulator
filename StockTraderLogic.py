@@ -1,5 +1,6 @@
 import pickle
 import stockquotes
+import math
 from formatStrings import bold, block
 
 BALANCE = "portfolio_balance"
@@ -94,7 +95,7 @@ class StockTraderLogic():
             price = price[1]
 
         response = self.getInformalName(message)+ "'s balance: " + self.getBalanceString() + "\n"
-        response+= ticker + " is currently valued at " + str(price) + " USD\nYou can afford " + str(round(self.getBalance()/price,2)) + " shares maximum"
+        response+= ticker + " is currently valued at " + str(price) + " USD\nYou can afford " + str(int(self.getBalance()/price)) + " shares maximum"
 
         return response
 
@@ -117,10 +118,10 @@ class StockTraderLogic():
 
         for stock in stocks:
             amountStr = bold(str(round(self.portfolio[STOCKS][stock],2))) + " shares"
-            tickerPadding = " " * (8 - len(stock))
+            tickerPadding = " " * 2 * (4 - len(stock))
             amountPadding = " " * (20 - len(amountStr))
             
-            response += "     " + bold(stock) + " :" + tickerPadding + amountStr + amountPadding +  "(" + bold(str(round(stockPrices[stock]*self.portfolio[STOCKS][stock],2))) + " USD)\n"
+            response += tickerPadding + bold(stock) + " :    "  + amountStr + amountPadding +  "(" + bold(str(round(stockPrices[stock]*self.portfolio[STOCKS][stock],2))) + " USD)\n"
 
             investmentsTotal += stockPrices[stock]*self.portfolio[STOCKS][stock]
 
@@ -132,7 +133,16 @@ class StockTraderLogic():
 
         return response
         
-
+    def validNumber(self, numAsString):
+        if numAsString == "all":
+            return True
+            
+        try:
+            val = int(numAsString)
+            assert val > 0
+            return True
+        except:
+            return False
 
     def buyStocks(self, message):
         response = ""
@@ -144,6 +154,10 @@ class StockTraderLogic():
                 index = i*2
                 ticker = request[index]
                 amount = request[index+1]
+
+                if not self.validNumber(amount):
+                    return "Uh oh! " + amount + " is not a valid amount!"
+
                 print("Processing Buy Request for " + amount + " shares of " + ticker)
                 buyResponse = self.buyStock(ticker, amount, message)
                 
@@ -154,7 +168,6 @@ class StockTraderLogic():
             return response
 
     def buyStock(self, ticker, amount, message):
-
         price = self.getStockPrice(ticker)
         if not price[0]:
             return price[1]
@@ -162,16 +175,13 @@ class StockTraderLogic():
             price = price[1]
 
         if amount == "all":
-            amount = self.getBalance() / price
+            amount = int(self.getBalance() / price)
         else:
-             amount = float(amount)
-
-        if amount <= 0.0:
-            return "Please enter an amount larger than zero"
+             amount = int(amount)
 
         cost = price * amount
         if cost > self.getBalance():
-            return self.getInformalName(message)+ "'s balance: " + self.getBalanceString() + "\nYou can only afford " + str(round(self.getBalance()/price,2)) + " shares!"
+            return self.getInformalName(message)+ "'s balance: " + self.getBalanceString() + "\nYou can only afford " + str(int(self.getBalance()/price)) + " shares!"
         else:
             self.portfolio[BALANCE] -= cost
             if ticker in self.portfolio[STOCKS]:
@@ -196,6 +206,10 @@ class StockTraderLogic():
                 index = i*2
                 ticker = request[index]
                 amount = request[index+1]
+
+                if not self.validNumber(amount):
+                    return "Uh oh! " + amount + " is not a valid amount!"
+
                 print("Processing Sell Request for " + amount + " shares of " + ticker)
                 sellResponse = self.sellStock(ticker, amount, message)
                 
@@ -218,10 +232,8 @@ class StockTraderLogic():
         if amount == "all":
             amount = self.portfolio[STOCKS][ticker]
         else:
-            amount = float(amount)
+            amount = int(amount)
 
-        if amount <= 0.0:
-            return "Please enter an amount larger than zero"
         
         if self.portfolio[STOCKS][ticker] < amount:
             return "You only have " + str(self.portfolio[STOCKS][ticker]) + " shares of " + ticker + "!"
@@ -265,14 +277,14 @@ class StockTraderLogic():
         response += bold("trader buy   STOCK   AMOUNT : ")
         response += tab + "Buy shares"
         response += "\n"
-        response += tab + " - Use \"all\" for AMOUNT to buy as many as possible"
+        response += tab + " - Use \"all\" for amount to buy as many as possible"
         response += "\n"
         response += "\n"
 
         response += bold("trader sell   STOCK   AMOUNT : ")
         response += tab + "Sell shares"
         response += "\n"
-        response += tab + " - Use \"all\" for AMOUNT to sell as many as possible"
+        response += tab + " - Use \"all\" for amount to sell as many as possible"
         response += "\n"
 
 
